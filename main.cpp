@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	
 	test = { 100 , 100 ,100 ,100 }; 
 
-	cout << "hello world";
+	cout << "hello world"<<"first change";
 
 	return 0;
 }
