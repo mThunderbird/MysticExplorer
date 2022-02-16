@@ -1,0 +1,246 @@
+#include "..\include\GraphManager.h"
+
+
+Vector2f GraphManager::findShortestPath(Vector2f start, Vector2f finish)
+{
+
+    //find closest Nodes to start & end points
+
+    double minStart = distanceBetweenTwoPoints(m_nodes[0]->coordinates, start);
+    int IDstart = 0;
+    double minEnd = distanceBetweenTwoPoints(m_nodes[0]->coordinates, finish);
+    int IDend = 0;
+    double current;
+
+    for (int i = 1; i < m_nodes.size(); i++)
+    {
+        current = distanceBetweenTwoPoints(m_nodes[i]->coordinates, start);
+
+        if (minStart > current)
+        {
+            minStart = current;
+            IDstart = i;
+        }
+
+        current = distanceBetweenTwoPoints(m_nodes[i]->coordinates, finish);
+
+        if (minEnd > current)
+        {
+            minEnd = current;
+            IDend = i;
+        }
+
+    }
+
+    //find the shortest path from IDstart to IDend
+
+
+    vector<NodeInAstar*>reached;
+    vector<NodeInAstar*>prioQ;
+
+    NodeInAstar* startingNode = new NodeInAstar;
+
+    NodeInGraph* traversor = nullptr;
+    NodeInAstar* Atraversor = nullptr;
+
+    startingNode->ID = m_nodes[IDstart]->ID;
+    startingNode->combinedHeiristic = std::numeric_limits<double>::infinity();
+    startingNode->pathLength = 0;
+    startingNode->path = NULL;
+
+    reached.push_back(startingNode);
+
+    while (reached.back()->ID != IDend || prioQ.size() == 0)
+    {
+
+        traversor = m_listHeads[reached.back()->ID];
+
+        //printf("Traversing Node %d:\n", reached.back()->ID);
+
+        while (traversor != NULL)
+        {
+
+            //0) Create a node to be inserted in the queue
+
+            NodeInAstar* temp = new NodeInAstar;
+            temp->ID = traversor->ID;
+            temp->pathLength = reached.back()->pathLength + traversor->weight;
+            temp->combinedHeiristic = temp->pathLength + distanceBetweenTwoPoints(m_nodes[temp->ID]->coordinates, m_nodes[IDend]->coordinates);
+            temp->path = reached.back();
+
+            //printf("Found a neighbour: ID-> %d, PL-> %f, CH-> %f, path-> %d \n", temp->ID, temp->pathLength ,temp->combinedHeiristic, temp->path->ID);
+
+            //1) if it is already reached and traversed note we skip it
+
+            bool doWeSkip = false;
+
+            for (int i = 0; i < reached.size(); i++)
+            {
+
+                if (temp->ID == reached[i]->ID)
+                {
+                    doWeSkip = true;
+                    delete temp;
+                    temp = nullptr;
+                    //printf("skipped it\n");
+                    break;
+                }
+
+            }
+
+            //2) if it is in the queue we check if the new path we found is shorter, if yes -> erase the old one , else -> skip it
+            if (!doWeSkip)
+            {
+                for (int i = 0; i < prioQ.size(); i++)
+                {
+                    if (temp->ID == prioQ[i]->ID && temp->combinedHeiristic >= prioQ[i]->combinedHeiristic)
+                    {
+                        doWeSkip = true;
+                        //printf("skipped it");
+                        delete temp;
+                        temp = nullptr;
+                        break;
+                    }
+                    else if (temp->ID == prioQ[i]->ID)
+                    {
+                        delete prioQ[i];
+                        prioQ[i] = nullptr;
+                        prioQ.erase(prioQ.begin() + i);
+                        //printf("updated path\n");
+                        break;
+                    }
+                }
+            }
+            //3) insert it in the queue and sort it with insertion sort
+
+            if (!doWeSkip)
+            {
+                prioQ.push_back(temp);
+                //printf("inserted a new Node\n");
+
+                for (int i = prioQ.size() - 1; i > 0; i--)
+                {
+                    if (prioQ[i]->combinedHeiristic < prioQ[i - 1]->combinedHeiristic)
+                    {
+
+                        temp = prioQ[i];
+                        prioQ[i] = prioQ[i - 1];
+                        prioQ[i - 1] = temp;
+
+                    }
+                    else break;
+                }
+
+
+            }
+
+
+
+            traversor = traversor->next;
+        }
+        for (int i = 0; i < prioQ.size(); i++)
+        {
+            //  printf("ID %d, CH %f -> ", prioQ[i]->ID, prioQ[i]->combinedHeiristic);
+        }
+        //cout<<endl;
+
+       //6) send the top node into the reached vector and repeat
+        reached.push_back(prioQ[0]);
+        prioQ.erase(prioQ.begin());
+
+        //int x;
+        //cin>>x;
+    }
+
+    //7) display shortest path
+
+    if (reached.back()->ID == IDend)
+    {
+        Atraversor = reached.back();
+
+        cout << "Shortest path is: ";
+        while (Atraversor != NULL)
+        {
+            Atraversor = Atraversor->path;
+        }
+    }
+    else cout << "No path to that location :( ";
+
+    Vector2f result;
+
+    if (Atraversor != nullptr)
+    {
+        result = m_nodes[Atraversor->ID]->coordinates;
+    }
+    else result = start;
+
+    //8) deallocate the used memory
+
+
+    for (int i = 0; i < prioQ.size(); i++)
+    {
+        delete prioQ[i];
+        prioQ[i] = nullptr;
+    }
+
+
+    delete startingNode;
+    startingNode = nullptr;
+
+    
+    return result;
+}
+
+void GraphManager::genNodeFromRect(SDL_FRect rect)
+{
+
+	Node* temp = new Node;
+	temp->ID = m_nodes.size();
+	temp->coordinates = { rect.x - m_elementaryRect.x/2, rect.y - m_elementaryRect.y/2 };
+	m_nodes.push_back(temp);
+	delete temp;
+
+	temp = new Node;
+	temp->ID = m_nodes.size();
+	temp->coordinates = { rect.x + rect.w + m_elementaryRect.x/2, rect.y - m_elementaryRect.y/2 };
+	m_nodes.push_back(temp);
+	delete temp;
+
+	temp = new Node;
+	temp->ID = m_nodes.size();
+	temp->coordinates = { rect.x - m_elementaryRect.x/2, rect.y + rect.h + m_elementaryRect.y/2 };
+	m_nodes.push_back(temp);
+	delete temp;
+
+	temp = new Node;
+	temp->ID = m_nodes.size();
+	temp->coordinates = { rect.x + rect.w + m_elementaryRect.x/2, rect.y + rect.h + m_elementaryRect.y/2 };
+	m_nodes.push_back(temp);
+	delete temp;
+
+}
+
+void GraphManager::generateEdgeBetweenTwoNodes(int ID1, int ID2)
+{
+	float weight = distanceBetweenTwoPoints(m_nodes[ID1]->coordinates, m_nodes[ID2]->coordinates);
+
+	NodeInGraph* temp1 = new NodeInGraph;
+
+	temp1->ID = ID1;
+	temp1->weight = weight;
+	temp1->next = m_listHeads[ID2];
+	m_listHeads[ID2] = temp1;
+
+	NodeInGraph* temp2 = new NodeInGraph;
+	temp2->ID = ID2;
+	temp2->weight = weight;
+	temp2->next = m_listHeads[ID1];
+	m_listHeads[ID1] = temp2;
+}
+
+void GraphManager::draw()
+{
+    //for(int i = 0; i < m_nodes)
+
+
+}

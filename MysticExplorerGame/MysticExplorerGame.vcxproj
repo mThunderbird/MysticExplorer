@@ -142,7 +142,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Debug\src\Engine.cpp" />
+    <ClCompile Include="..\Debug\src\GameManager.cpp" />
+    <ClCompile Include="..\Debug\src\GraphManager.cpp" />
     <ClCompile Include="..\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Debug\include\Engine.h" />
+    <ClInclude Include="..\Debug\include\GameManager.h" />
+    <ClInclude Include="..\Debug\include\GraphManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

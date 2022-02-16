@@ -1,1 +1,7 @@
-﻿  MysticExplorerGame.vcxproj -> C:\Users\drago\Desktop\MysticExplorerGame\Debug\MysticExplorerGame.exe
+﻿  GraphManager.cpp
+C:\Informatika\local develops\pathFindingVisualRepresentation\Debug\src\GraphManager.cpp(52,31): warning C4018: '<': signed/unsigned mismatch
+C:\Informatika\local develops\pathFindingVisualRepresentation\Debug\src\GraphManager.cpp(69,35): warning C4018: '<': signed/unsigned mismatch
+C:\Informatika\local develops\pathFindingVisualRepresentation\Debug\src\GraphManager.cpp(161,23): warning C4018: '<': signed/unsigned mismatch
+C:\Informatika\local develops\pathFindingVisualRepresentation\Debug\src\GraphManager.cpp(166,23): warning C4018: '<': signed/unsigned mismatch
+C:\Informatika\local develops\pathFindingVisualRepresentation\Debug\src\GraphManager.cpp(245,23): warning C4018: '<': signed/unsigned mismatch
+  MysticExplorerGame.vcxproj -> C:\Informatika\local develops\pathFindingVisualRepresentation\Debug\MysticExplorerGame.exe

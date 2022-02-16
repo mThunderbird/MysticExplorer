@@ -1,18 +1,22 @@
-#include<iostream>
+#include "Debug\include\GameManager.h"
 
-#include "SDL2\include\SDL.h"
-
-#undef main
-
-using namespace std;
+GameManager gameManger;
 
 int main(int argc, char* argv[])
 {
-	SDL_Rect test;
 	
-	test = { 100 , 100 ,100 ,100 }; 
+	gameManger.init();
 
-	cout << "hello world"<<"first change";
+	while (gameManger.m_endGame == false)
+	{
+	
+		gameManger.update();
+
+		gameManger.draw();
+
+		SDL_Delay(25);
+	}
+
 
 	return 0;
 }
